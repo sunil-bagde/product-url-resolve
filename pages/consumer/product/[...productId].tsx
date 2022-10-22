@@ -15,7 +15,7 @@ let url = "/consumer/product";
 
 export async function getServerSideProps(context) {
   const resolvedUrl = context.resolvedUrl;
-  const { data } = await showProduct(false);
+  const { data } = await showProduct(true);
   const { productId } = context.params;
 
   let seoName = "";
@@ -34,9 +34,7 @@ export async function getServerSideProps(context) {
     if (!data.seoName && indexOfHyphen !== -1) {
       seoName = "";
     }
-    if (!data.seoName && indexOfHyphen === -1) {
-      seoName = "";
-    }
+
     if (resolvedUrl.includes("support")) {
       supportUrl = "/support";
     }
@@ -64,9 +62,7 @@ export async function getServerSideProps(context) {
     if (!data.seoName && indexOfHyphen !== -1) {
       seoName = "";
     }
-    if (!data.seoName && indexOfHyphen === -1) {
-      seoName = "";
-    }
+
     if (resolvedUrl.includes("support")) {
       supportUrl = "/support";
     }
