@@ -44,12 +44,11 @@ export async function getServerSideProps(context) {
       },
     };
   }
-  console.log( data.seoName , productUrl[1]);
-  if (productIdVairant(productId[0]) &&  data.seoName !== productUrl[1]) {
+  if (productIdVairant(productId[0]) && data.seoName !== productUrl[1]) {
     // PO/12 in url
-
+    const productIdwithVariant = productUrl.slice(0, 1).join("_");
     const indexOfHyphen = productUrl.indexOf("-");
-    const productIdwithVariant = productUrl.slice(0, 2).join("_");
+
 
     if (data.seoName) {
       seoName = `-${data.seoName}`;
