@@ -15,7 +15,7 @@ let url = "/consumer/product";
 
 export async function getServerSideProps(context) {
   const resolvedUrl = context.resolvedUrl;
-  const { data } = await showProduct(true);
+  const { data } = await showProduct(false);
   const { productId } = context.params;
 
   let seoName = "";
@@ -48,7 +48,6 @@ export async function getServerSideProps(context) {
   if (
     productIdVairant(productId[0]) &&
     data.seoName &&
-    productUrl.indexOf("-") === -1 &&
     data.seoName !== productUrl[1]
   ) {
     // PO/12 in url
@@ -78,7 +77,7 @@ export async function getServerSideProps(context) {
     (i, index) => index === 0 || i == "support"
   );
 
-  if (!data.seoName && productUrlNew.length ==1 && productUrl.length > 1) {
+  if (!data.seoName && productUrlNew.length == 1 && productUrl.length > 1) {
     if (resolvedUrl.includes("support")) {
       supportUrl = "/support";
     }
