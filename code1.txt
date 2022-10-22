@@ -15,7 +15,7 @@ let url = "/consumer/product";
 
 export async function getServerSideProps(context) {
   const resolvedUrl = context.resolvedUrl;
-  const { data } = await showProduct(true);
+  const { data } = await showProduct(false);
   const { productId } = context.params;
 
   let seoName = "";
@@ -27,14 +27,10 @@ export async function getServerSideProps(context) {
     const indexOfHyphen = productUrl.indexOf("-");
     const productIdwithVariant = productUrl.slice(0, 2).join("_");
 
-    console.log("productId if 1", productId);
     if (data.seoName) {
       seoName = `-${data.seoName}`;
     }
     if (!data.seoName && indexOfHyphen !== -1) {
-      seoName = "";
-    }
-    if (!data.seoName && indexOfHyphen === -1) {
       seoName = "";
     }
     if (resolvedUrl.includes("support")) {
@@ -42,54 +38,46 @@ export async function getServerSideProps(context) {
     }
     return {
       redirect: {
-        destination: `${url}/${productIdwithVariant}${seoName}${supportUrl}`,
+        destination: `${url}/${productIdwithVariant}${seoName}${supportUrl}?re=0`,
         permanent: false,
       },
     };
   }
-  if (
-    productIdVairant(productId[0]) &&
-    data.seoName &&
-    productUrl.indexOf("-") === -1 &&
-    data.seoName !== productUrl[1]
-  ) {
+
+
+  if (productIdVairant(productId[0]) && data.seoName && data.seoName !== productUrl[1]) {
     // PO/12 in url
 
-    console.log("productId if 2", productId);
     const productIdwithVariant = productUrl.slice(0, 1).join("_");
     const indexOfHyphen = productUrl.indexOf("-");
+
     if (data.seoName) {
       seoName = `-${data.seoName}`;
     }
     if (!data.seoName && indexOfHyphen !== -1) {
       seoName = "";
     }
-    if (!data.seoName && indexOfHyphen === -1) {
-      seoName = "";
-    }
     if (resolvedUrl.includes("support")) {
       supportUrl = "/support";
     }
     return {
       redirect: {
-        destination: `${url}/${productIdwithVariant}${seoName}${supportUrl}`,
-        permanent: false,
+        destination: `${url}/${productIdwithVariant}${seoName}${supportUrl}?re=0`,
+       permanent: false,
       },
     };
-  }
+  } else if(!data.seoName  && productUrl.indexOf("-") === -1 && context.query.re != 1){
+    console.log("context.query", context.query);
 
-  const productUrlNew = productUrl.filter(
-    (i, index) => index === 0 || i == "support"
-  );
-  if (!data.seoName && productUrlNew.length === 2 && productUrl.length > 2) {
     if (resolvedUrl.includes("support")) {
       supportUrl = "/support";
     }
     const productIdwithVariant = productUrl.slice(0, 1).join("_");
+
     return {
       redirect: {
-        destination: `${url}/${productIdwithVariant}${supportUrl}`,
-        permanent: false,
+       destination: `${url}/${productIdwithVariant}${supportUrl}?re=1`,
+       permanent: false,
       },
     };
   }
@@ -112,6 +100,7 @@ function ProductPage({
   productInfo,
   resolvedUrl,
 }) {
+
   return <div>{isSupport ? "Support Page" : "Product Page"}</div>;
 }
 
