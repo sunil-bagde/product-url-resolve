@@ -15,7 +15,7 @@ let url = "/consumer/product";
 
 export async function getServerSideProps(context) {
   const resolvedUrl = context.resolvedUrl;
-  const { data } = await showProduct(true);
+  const { data } = await showProduct(false);
   const { productId } = context.params;
 
   let seoName = "";
@@ -81,7 +81,21 @@ export async function getServerSideProps(context) {
   const productUrlNew = productUrl.filter(
     (i, index) => index === 0 || i == "support"
   );
-  if (!data.seoName && productUrlNew.length === 2 && productUrl.length > 2) {
+
+  if (!data.seoName && productUrlNew.length ==1 && productUrl.length > 1) {
+    if (resolvedUrl.includes("support")) {
+      supportUrl = "/support";
+    }
+    const productIdwithVariant = productUrl.slice(0, 1).join("_");
+    return {
+      redirect: {
+        destination: `${url}/${productIdwithVariant}${supportUrl}`,
+        permanent: false,
+      },
+    };
+  }
+  if (!data.seoName && productUrlNew.length <= 2 && productUrl.length > 2) {
+    console.log("productUrlNew if 3", productUrlNew);
     if (resolvedUrl.includes("support")) {
       supportUrl = "/support";
     }
