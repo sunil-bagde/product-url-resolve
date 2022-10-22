@@ -45,3 +45,29 @@ arr = arr.filter(a => a).join("/")
 */
 final url look like
 productId_variant(?-seo name)/(?support)
+
+
+
+  const router = useRouter();
+  console.log("router", router.asPath);
+
+console.log("productUrl", productUrl);
+  React.useEffect(() => {
+    let seoName = '';
+    let supportUrl = '';
+    if (isProductIdVairant) {
+      const indexOfHyphen = productUrl.indexOf("-");
+      const productIdwithVariant = productUrl.slice(0, 2).join("_");
+
+      if (productInfo.seoName) {
+        seoName = `-${productInfo.seoName}`;
+      }
+      if (!productInfo.seoName && indexOfHyphen !== -1) {
+        seoName = "";
+      }
+      if (resolvedUrl.includes("support")) {
+        supportUrl = "/support";
+      }
+      router.push(`${url}/${productIdwithVariant}${seoName}${supportUrl}`);
+    }
+  }, [isProductIdVairant,productInfo.seoName]);

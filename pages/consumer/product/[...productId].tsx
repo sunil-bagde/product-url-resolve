@@ -1,6 +1,8 @@
+import * as React from "react";
 import axios from "axios";
+import { useRouter } from "next/router";
 
-const isContainsUndescore = (id: string) => {
+const productIdVairant = (id: string) => {
   return id.includes("_");
 };
 const showProduct = async (hasName: boolean) => {
@@ -10,42 +12,82 @@ const showProduct = async (hasName: boolean) => {
   return await axios.get("http://localhost:3000/api/show-product");
 };
 let url = "/consumer/product";
-export async function getServerSideProps(context) {
 
-  const { data } = await showProduct(false);
+export async function getServerSideProps(context) {
+  const resolvedUrl = context.resolvedUrl;
+  const { data } = await showProduct(true);
   const { productId } = context.params;
+  console.log("productId", productId);
   let seoName = "";
-  if (!isContainsUndescore(productId[0])) {
-    const productUrl = productId.join(",")?.replace("-",",").split(",");
-    console.log("productUrl", productUrl);
-   /* return {
-      props: {},}*/
+  let supportUrl = "";
+  const productUrl = productId.join(",")?.replace("-", ",")?.split(",");
+  console.log("productUrl", productUrl);
+  if (!productIdVairant(productId[0])) {
+    // PO/12 in url
+
     const indexOfHyphen = productUrl.indexOf("-");
-   const productIdwithVariant = productUrl.slice(0, 2).join("_");
-    console.log("productIdwithVariant", productIdwithVariant);
+    const productIdwithVariant = productUrl.slice(0, 2).join("_");
+
     if (data.seoName) {
       seoName = `-${data.seoName}`;
     }
     if (!data.seoName && indexOfHyphen !== -1) {
-      seoName = ``;
+      seoName = "";
     }
-
-    console.log("seoName", seoName);
+    if (resolvedUrl.includes("support")) {
+      supportUrl = "/support";
+    }
     return {
-      props: {},
       redirect: {
-        destination: `${url}/${productIdwithVariant}${seoName}`,
+        destination: `${url}/${productIdwithVariant}${seoName}${supportUrl}`,
         permanent: false,
       },
     };
   }
+  console.log( data.seoName , productUrl[1]);
+  if (productIdVairant(productId[0]) &&  data.seoName !== productUrl[1]) {
+    // PO/12 in url
+
+    const indexOfHyphen = productUrl.indexOf("-");
+    const productIdwithVariant = productUrl.slice(0, 2).join("_");
+
+    if (data.seoName) {
+      seoName = `-${data.seoName}`;
+    }
+    if (!data.seoName && indexOfHyphen !== -1) {
+      seoName = "";
+    }
+    if (resolvedUrl.includes("support")) {
+      supportUrl = "/support";
+    }
+    return {
+      redirect: {
+        destination: `${url}/${productIdwithVariant}${seoName}${supportUrl}`,
+       permanent: false,
+      },
+    };
+  }
+
   return {
-    props: {},
+    props: {
+      resolvedUrl: resolvedUrl,
+      productUrl: productUrl,
+      isProductIdVairant: productIdVairant(productId[0]),
+      productInfo: data,
+      isSupport: resolvedUrl.includes("support"),
+    },
   };
 }
 
-function ProductPage() {
-  return <div>Welcome to Next.js!</div>;
+function ProductPage({
+  productUrl,
+  isProductIdVairant,
+  isSupport,
+  productInfo,
+  resolvedUrl,
+}) {
+
+  return <div>{isSupport ? "Support Page" : "Product Page"}</div>;
 }
 
 export default ProductPage;
