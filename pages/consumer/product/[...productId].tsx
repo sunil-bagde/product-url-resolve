@@ -1,51 +1,14 @@
 import * as React from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
+import {
+  isProductIdVairant,
+  getProductVairant,
+  productRedirectTo,
+  productSeoName,
+  showProduct,
+} from "utils";
 
-const isProductIdVairant = (id: string) => {
-  return id.includes("_");
-};
-const getProductVairant = (productUrl, index = 2) => {
-  return productUrl.slice(0, index).join("_");
-};
-const getSupportUrl = (resolvedUrl) => {
-  const supportText = "support";
-  if (resolvedUrl.includes(supportText)) {
-    return "/" + supportText;
-  }
-  return "";
-};
-
-const productRedirectTo = ({
-  url,
-  productIdwithVariant,
-  seoName,
-  supportUrl,
-}) => {
-  return {
-    redirect: {
-      destination: `${url}/${productIdwithVariant}${seoName}${supportUrl}`,
-      permanent: false,
-    },
-  };
-};
-const productSeoName = (seoName = "", productUrl) => {
-  const indexOfHyphen = productUrl.indexOf("-");
-  let newSeoName = seoName;
-  if (newSeoName) {
-    newSeoName = `-${newSeoName}`;
-  }
-  if (!newSeoName && indexOfHyphen !== -1) {
-    newSeoName = "";
-  }
-  return newSeoName;
-};
-const showProduct = async (hasName: boolean) => {
-  if (!hasName) {
-    return { data: {} };
-  }
-  return await axios.get("http://localhost:3000/api/show-product");
-};
 let url = "/consumer/product";
 
 export async function getServerSideProps(context) {
