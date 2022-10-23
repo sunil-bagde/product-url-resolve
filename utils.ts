@@ -1,10 +1,12 @@
+import axios from "axios";
+
 export const isProductIdVairant = (id: string) => {
   return id.includes("_");
 };
-const getProductVairant = (productUrl, index = 2) => {
+export const getProductVairant = (productUrl, index = 2) => {
   return productUrl.slice(0, index).join("_");
 };
-const getSupportUrl = (resolvedUrl) => {
+export const getSupportUrl = (resolvedUrl) => {
   const supportText = "support";
   if (resolvedUrl.includes(supportText)) {
     return "/" + supportText;

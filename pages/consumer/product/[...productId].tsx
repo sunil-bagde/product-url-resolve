@@ -7,13 +7,14 @@ import {
   productRedirectTo,
   productSeoName,
   showProduct,
+  getSupportUrl,
 } from "utils";
 
 let url = "/consumer/product";
 
 export async function getServerSideProps(context) {
   const resolvedUrl = context.resolvedUrl;
-  const { data } = await showProduct(false);
+  const { data } = await showProduct(true);
   const { productId } = context.params;
   let seoName = "";
   let supportUrl = "";
@@ -54,20 +55,25 @@ export async function getServerSideProps(context) {
     (i, index) => index === 0 || i == "support"
   );
 
-  if (!data.seoName && productUrlNew.length == 1 && productUrl.length > 1) {
+/*  if (!data.seoName && productUrlNew.length == 1 && productUrl.length > 1) {
     supportUrl = getSupportUrl(resolvedUrl);
-    const productIdwithVariant = productUrl.slice(0, 1).join("_");
+    const productIdwithVariant = getProductVairant(productUrl, 1)
     return productRedirectTo({
       url,
       productIdwithVariant,
       seoName,
       supportUrl,
     });
-  }
-  if (!data.seoName && productUrlNew.length <= 2 && productUrl.length > 2) {
+  }*/
+
+console.log("productUrlNew", productUrlNew);
+
+console.log("productUrl", productUrl);
+  if (!data.seoName && productUrlNew.length <  productUrl.length  ) {
+   // if (!data.seoName && productUrlNew.length <= 2 && productUrl.length > 2) {
     console.log("productUrlNew if 3", productUrlNew);
     supportUrl = getSupportUrl(resolvedUrl);
-    const productIdwithVariant = productUrl.slice(0, 1).join("_");
+    const productIdwithVariant = getProductVairant(productUrl, 1)
     return productRedirectTo({
       url,
       productIdwithVariant,

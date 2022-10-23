@@ -2,48 +2,17 @@
 import * as React from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
+import {
+  isProductIdVairant,
+  getProductVairant,
+  productRedirectTo,
+  productSeoName,
+  showProduct,
+  getSupportUrl,
+} from "utils";
 
-const productIdVairant = (id: string) => {
-  return id.includes("_");
-};
-const showProduct = async (hasName: boolean) => {
-  if (!hasName) {
-    return { data: {} };
-  }
-  return await axios.get("http://localhost:3000/api/show-product");
-};
 let url = "/consumer/product";
-const redrectTo = (
-  productId: string,
-  productUrl: string[],
-  data: any,
-  resolvedUrl,
-  index = 2
-) => {
-  console.log("redrectTo HIT product/variant");
-  let seoName = "";
-  let supportUrl = "";
 
-console.log("productUrl", productUrl);
-  const indexOfHyphen = productUrl.indexOf("-");
-  const productIdwithVariant = productUrl.slice(0, index).join("_");
-
-  if (data.seoName) {
-    seoName = `-${data.seoName}`;
-  }
-  if (!data.seoName && indexOfHyphen !== -1) {
-    seoName = "";
-  }
-  if (resolvedUrl.includes("support")) {
-    supportUrl = "/support";
-  }
-  return {
-    redirect: {
-      destination: `${url}/${productIdwithVariant}${seoName}${supportUrl}`,
-      permanent: false,
-    },
-  };
-};
 export async function getServerSideProps(context) {
   const resolvedUrl = context.resolvedUrl;
   const { data } = await showProduct(false);
@@ -51,30 +20,74 @@ export async function getServerSideProps(context) {
   let seoName = "";
   let supportUrl = "";
   const productUrl = productId.join(",")?.replace("-", ",")?.split(",");
-  console.log("productUrlABC", productUrl);
 
-  /*
-    when  product/variant pattern
-  */
-  if (!productIdVairant(productId[0])) {
-
-    return redrectTo(productId, productUrl, data, resolvedUrl);
-  }
-  /*
-    when  product_variant pattern
-    when  seoName is there and url enter seo name not correct
-  */
-  if (productIdVairant(productId[0]) && data.seoName !== productUrl[1]) {
+  if (!isProductIdVairant(productId[0])) {
     // PO/12 in url
-    return redrectTo(productId, productUrl, data, resolvedUrl, 1);
+    console.log("productId if 1", productId);
+    const productIdwithVariant = getProductVairant(productUrl, 2);
+    seoName = productSeoName(data.seoName, productUrl);
+    supportUrl = getSupportUrl(resolvedUrl);
+    return productRedirectTo({
+      url,
+      productIdwithVariant,
+      seoName,
+      supportUrl,
+    });
+  }
+  if (
+    isProductIdVairant(productId[0]) &&
+    data.seoName &&
+    data.seoName !== productUrl[1]
+  ) {
+    // PO/12 in url
+    console.log("productId if 2", productId);
+    const productIdwithVariant = getProductVairant(productUrl, 1);
+    seoName = productSeoName(data.seoName, productUrl);
+    supportUrl = getSupportUrl(resolvedUrl);
+    return productRedirectTo({
+      url,
+      productIdwithVariant,
+      seoName,
+      supportUrl,
+    });
+  }
 
+  const productUrlNew = productUrl.filter(
+    (i, index) => index === 0 || i == "support"
+  );
+
+/*  if (!data.seoName && productUrlNew.length == 1 && productUrl.length > 1) {
+    supportUrl = getSupportUrl(resolvedUrl);
+    const productIdwithVariant = getProductVairant(productUrl, 1)
+    return productRedirectTo({
+      url,
+      productIdwithVariant,
+      seoName,
+      supportUrl,
+    });
+  }*/
+
+console.log("productUrlNew", productUrlNew);
+
+console.log("productUrl", productUrl);
+  if (!data.seoName && productUrlNew.length <  productUrl.length  ) {
+   // if (!data.seoName && productUrlNew.length <= 2 && productUrl.length > 2) {
+    console.log("productUrlNew if 3", productUrlNew);
+    supportUrl = getSupportUrl(resolvedUrl);
+    const productIdwithVariant = getProductVairant(productUrl, 1)
+    return productRedirectTo({
+      url,
+      productIdwithVariant,
+      seoName,
+      supportUrl,
+    });
   }
 
   return {
     props: {
       resolvedUrl: resolvedUrl,
       productUrl: productUrl,
-      isProductIdVairant: productIdVairant(productId[0]),
+      isProductIdVairant: isProductIdVairant(productId[0]),
       productInfo: data,
       isSupport: resolvedUrl.includes("support"),
     },
@@ -92,7 +105,6 @@ function ProductPage({
 }
 
 export default ProductPage;
-
 
 ```
 
