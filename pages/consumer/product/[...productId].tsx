@@ -5,6 +5,27 @@ import { useRouter } from "next/router";
 const productIdVairant = (id: string) => {
   return id.includes("_");
 };
+const getSupportUrl = (resolvedUrl) => {
+  const supportText = "support";
+  if (resolvedUrl.includes(supportText)) {
+    return "/" + supportText;
+  }
+  return "";
+};
+
+const productRedirectTo = ({
+  url,
+  productIdwithVariant,
+  seoName,
+  supportUrl,
+}) => {
+  return {
+    redirect: {
+      destination: `${url}/${productIdwithVariant}${seoName}${supportUrl}`,
+      permanent: false,
+    },
+  };
+};
 const showProduct = async (hasName: boolean) => {
   if (!hasName) {
     return { data: {} };
@@ -17,16 +38,14 @@ export async function getServerSideProps(context) {
   const resolvedUrl = context.resolvedUrl;
   const { data } = await showProduct(false);
   const { productId } = context.params;
-
   let seoName = "";
   let supportUrl = "";
   const productUrl = productId.join(",")?.replace("-", ",")?.split(",");
 
   if (!productIdVairant(productId[0])) {
     // PO/12 in url
-    const indexOfHyphen = productUrl.indexOf("-");
     const productIdwithVariant = productUrl.slice(0, 2).join("_");
-
+    const indexOfHyphen = productUrl.indexOf("-");
     console.log("productId if 1", productId);
     if (data.seoName) {
       seoName = `-${data.seoName}`;
@@ -34,16 +53,13 @@ export async function getServerSideProps(context) {
     if (!data.seoName && indexOfHyphen !== -1) {
       seoName = "";
     }
-
-    if (resolvedUrl.includes("support")) {
-      supportUrl = "/support";
-    }
-    return {
-      redirect: {
-        destination: `${url}/${productIdwithVariant}${seoName}${supportUrl}`,
-        permanent: false,
-      },
-    };
+    supportUrl = getSupportUrl(resolvedUrl);
+    return productRedirectTo({
+      url,
+      productIdwithVariant,
+      seoName,
+      supportUrl,
+    });
   }
   if (
     productIdVairant(productId[0]) &&
@@ -61,16 +77,13 @@ export async function getServerSideProps(context) {
     if (!data.seoName && indexOfHyphen !== -1) {
       seoName = "";
     }
-
-    if (resolvedUrl.includes("support")) {
-      supportUrl = "/support";
-    }
-    return {
-      redirect: {
-        destination: `${url}/${productIdwithVariant}${seoName}${supportUrl}`,
-        permanent: false,
-      },
-    };
+    supportUrl = getSupportUrl(resolvedUrl);
+    return productRedirectTo({
+      url,
+      productIdwithVariant,
+      seoName,
+      supportUrl,
+    });
   }
 
   const productUrlNew = productUrl.filter(
@@ -78,29 +91,25 @@ export async function getServerSideProps(context) {
   );
 
   if (!data.seoName && productUrlNew.length == 1 && productUrl.length > 1) {
-    if (resolvedUrl.includes("support")) {
-      supportUrl = "/support";
-    }
+    supportUrl = getSupportUrl(resolvedUrl);
     const productIdwithVariant = productUrl.slice(0, 1).join("_");
-    return {
-      redirect: {
-        destination: `${url}/${productIdwithVariant}${supportUrl}`,
-        permanent: false,
-      },
-    };
+    return productRedirectTo({
+      url,
+      productIdwithVariant,
+      seoName,
+      supportUrl,
+    });
   }
   if (!data.seoName && productUrlNew.length <= 2 && productUrl.length > 2) {
     console.log("productUrlNew if 3", productUrlNew);
-    if (resolvedUrl.includes("support")) {
-      supportUrl = "/support";
-    }
+    supportUrl = getSupportUrl(resolvedUrl);
     const productIdwithVariant = productUrl.slice(0, 1).join("_");
-    return {
-      redirect: {
-        destination: `${url}/${productIdwithVariant}${supportUrl}`,
-        permanent: false,
-      },
-    };
+    return productRedirectTo({
+      url,
+      productIdwithVariant,
+      seoName,
+      supportUrl,
+    });
   }
 
   return {
