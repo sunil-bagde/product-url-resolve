@@ -26,6 +26,17 @@ const productRedirectTo = ({
     },
   };
 };
+const productSeoName = (seoName = "", productUrl) => {
+  const indexOfHyphen = productUrl.indexOf("-");
+  let newSeoName = seoName;
+  if (newSeoName) {
+    newSeoName = `-${newSeoName}`;
+  }
+  if (!newSeoName && indexOfHyphen !== -1) {
+    newSeoName = "";
+  }
+  return newSeoName;
+};
 const showProduct = async (hasName: boolean) => {
   if (!hasName) {
     return { data: {} };
@@ -36,7 +47,7 @@ let url = "/consumer/product";
 
 export async function getServerSideProps(context) {
   const resolvedUrl = context.resolvedUrl;
-  const { data } = await showProduct(false);
+  const { data } = await showProduct(true);
   const { productId } = context.params;
   let seoName = "";
   let supportUrl = "";
@@ -44,15 +55,10 @@ export async function getServerSideProps(context) {
 
   if (!productIdVairant(productId[0])) {
     // PO/12 in url
-    const productIdwithVariant = productUrl.slice(0, 2).join("_");
-    const indexOfHyphen = productUrl.indexOf("-");
     console.log("productId if 1", productId);
-    if (data.seoName) {
-      seoName = `-${data.seoName}`;
-    }
-    if (!data.seoName && indexOfHyphen !== -1) {
-      seoName = "";
-    }
+    const productIdwithVariant = productUrl.slice(0, 2).join("_");
+    seoName = productSeoName(data.seoName, productUrl);
+    console.log("seoName", seoName);
     supportUrl = getSupportUrl(resolvedUrl);
     return productRedirectTo({
       url,
@@ -70,13 +76,7 @@ export async function getServerSideProps(context) {
 
     console.log("productId if 2", productId);
     const productIdwithVariant = productUrl.slice(0, 1).join("_");
-    const indexOfHyphen = productUrl.indexOf("-");
-    if (data.seoName) {
-      seoName = `-${data.seoName}`;
-    }
-    if (!data.seoName && indexOfHyphen !== -1) {
-      seoName = "";
-    }
+    seoName = productSeoName(data.seoName, productUrl);
     supportUrl = getSupportUrl(resolvedUrl);
     return productRedirectTo({
       url,
