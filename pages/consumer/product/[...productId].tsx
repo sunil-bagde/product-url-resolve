@@ -2,8 +2,11 @@ import * as React from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 
-const productIdVairant = (id: string) => {
+const isProductIdVairant = (id: string) => {
   return id.includes("_");
+};
+const getProductVairant = (productUrl, index = 2) => {
+  return productUrl.slice(0, index).join("_");
 };
 const getSupportUrl = (resolvedUrl) => {
   const supportText = "support";
@@ -47,18 +50,17 @@ let url = "/consumer/product";
 
 export async function getServerSideProps(context) {
   const resolvedUrl = context.resolvedUrl;
-  const { data } = await showProduct(true);
+  const { data } = await showProduct(false);
   const { productId } = context.params;
   let seoName = "";
   let supportUrl = "";
   const productUrl = productId.join(",")?.replace("-", ",")?.split(",");
 
-  if (!productIdVairant(productId[0])) {
+  if (!isProductIdVairant(productId[0])) {
     // PO/12 in url
     console.log("productId if 1", productId);
-    const productIdwithVariant = productUrl.slice(0, 2).join("_");
+    const productIdwithVariant = getProductVairant(productUrl, 2);
     seoName = productSeoName(data.seoName, productUrl);
-    console.log("seoName", seoName);
     supportUrl = getSupportUrl(resolvedUrl);
     return productRedirectTo({
       url,
@@ -68,14 +70,13 @@ export async function getServerSideProps(context) {
     });
   }
   if (
-    productIdVairant(productId[0]) &&
+    isProductIdVairant(productId[0]) &&
     data.seoName &&
     data.seoName !== productUrl[1]
   ) {
     // PO/12 in url
-
     console.log("productId if 2", productId);
-    const productIdwithVariant = productUrl.slice(0, 1).join("_");
+    const productIdwithVariant = getProductVairant(productUrl, 1);
     seoName = productSeoName(data.seoName, productUrl);
     supportUrl = getSupportUrl(resolvedUrl);
     return productRedirectTo({
@@ -116,7 +117,7 @@ export async function getServerSideProps(context) {
     props: {
       resolvedUrl: resolvedUrl,
       productUrl: productUrl,
-      isProductIdVairant: productIdVairant(productId[0]),
+      isProductIdVairant: isProductIdVairant(productId[0]),
       productInfo: data,
       isSupport: resolvedUrl.includes("support"),
     },
