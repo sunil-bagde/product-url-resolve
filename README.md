@@ -107,7 +107,7 @@ function ProductPage({
 export default ProductPage;
 
 ```
-
+```
 /*
     Scenario 1
     id/variant
@@ -133,6 +133,9 @@ arr = arr.filter(a => a).join("/")
     id_variant
     no seo name
 */
+```
+
+```
 final url look like
 productId_variant(?-seo name)/(?support)
 
@@ -161,3 +164,4 @@ console.log("productUrl", productUrl);
       router.push(`${url}/${productIdwithVariant}${seoName}${supportUrl}`);
     }
   }, [isProductIdVairant,productInfo.seoName]);
+```
