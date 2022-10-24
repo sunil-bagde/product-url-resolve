@@ -14,14 +14,18 @@ let url = "/consumer/product";
 
 export async function getServerSideProps(context) {
   const resolvedUrl = context.resolvedUrl;
-  const { data } = await showProduct(true);
+  const { data } = await showProduct(false);
   const { productId } = context.params;
   let seoName = "";
   let supportUrl = "";
   const productUrl = productId.join(",")?.replace("-", ",")?.split(",");
+  console.log("productUrl", productUrl);
 
+  /*
+    PO/12 in url
+  */
   if (!isProductIdVairant(productId[0])) {
-    // PO/12 in url
+
     console.log("productId if 1", productId);
     const productIdwithVariant = getProductVairant(productUrl, 2);
     seoName = productSeoName(data.seoName, productUrl);
@@ -33,12 +37,12 @@ export async function getServerSideProps(context) {
       supportUrl,
     });
   }
+  // PO_12 in url
   if (
     isProductIdVairant(productId[0]) &&
     data.seoName &&
     data.seoName !== productUrl[1]
   ) {
-    // PO/12 in url
     console.log("productId if 2", productId);
     const productIdwithVariant = getProductVairant(productUrl, 1);
     seoName = productSeoName(data.seoName, productUrl);
@@ -50,27 +54,10 @@ export async function getServerSideProps(context) {
       supportUrl,
     });
   }
-
   const productUrlNew = productUrl.filter(
     (i, index) => index === 0 || i == "support"
   );
-
-/*  if (!data.seoName && productUrlNew.length == 1 && productUrl.length > 1) {
-    supportUrl = getSupportUrl(resolvedUrl);
-    const productIdwithVariant = getProductVairant(productUrl, 1)
-    return productRedirectTo({
-      url,
-      productIdwithVariant,
-      seoName,
-      supportUrl,
-    });
-  }*/
-
-console.log("productUrlNew", productUrlNew);
-
-console.log("productUrl", productUrl);
   if (!data.seoName && productUrlNew.length <  productUrl.length  ) {
-   // if (!data.seoName && productUrlNew.length <= 2 && productUrl.length > 2) {
     console.log("productUrlNew if 3", productUrlNew);
     supportUrl = getSupportUrl(resolvedUrl);
     const productIdwithVariant = getProductVairant(productUrl, 1)
